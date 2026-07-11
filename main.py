@@ -41,6 +41,7 @@ class User(UserMixin, db.Model, Base):
     password: Mapped[str] = mapped_column(String(250), nullable=False)
 
     posts: Mapped[list["BlogPost"]] = relationship(back_populates="author")
+    comments: Mapped[list["Comment"]] = relationship(back_populates="comment_author")
 
 # CONFIGURE TABLES
 class BlogPost(db.Model, Base):
@@ -55,6 +56,19 @@ class BlogPost(db.Model, Base):
     img_url: Mapped[str] = mapped_column(String(250), nullable=False)
 
     author: Mapped["User"] = relationship(back_populates="posts")
+    comments: Mapped[list["Comment"]] = relationship(back_populates="blogs_comments")
+
+class Comment(db.Model, Base):
+    __tablename__ = "comments"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    #relationship with the User
+    author_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("users.id"))
+    comment_author: Mapped["User"] = relationship(back_populates="comments")
+    #relationship with the blog
+    blog_id: Mapped[int] = mapped_column(db.ForeignKey("blog_posts.id"))
+    blogs_comments: Mapped["BlogPost"] = relationship(back_populates="comments")
 
 with app.app_context():
     db.create_all()
@@ -142,11 +156,24 @@ def get_all_posts():
 
 
 # TODO: Allow logged-in users to comment on posts
-@app.route("/post/<int:post_id>")
+@app.route("/post/<int:post_id>", methods=["GET", "POST"])
 def show_post(post_id):
     form = CommentForm()
     requested_post = db.get_or_404(BlogPost, post_id)
+    if form.validate_on_submit():
+        if not current_user.is_authenticated:
+            flash('You need to login first.')
+            return redirect(url_for("login"))
+
+        new_comment = Comment(
+            text=form.comment.data,
+            comment_author=current_user,
+            blogs_comments=requested_post,
+        )
+        db.session.add(new_comment)
+        db.session.commit()
     return render_template("post.html", form=form, post=requested_post, logged_in=current_user.is_authenticated)
+
 
 
 # TODO: Use a decorator so only an admin user can create a new post
