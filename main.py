@@ -2,7 +2,7 @@ from datetime import date
 from flask import Flask, abort, render_template, redirect, url_for, flash, request
 from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
-from flask_gravatar import Gravatar
+# from flask_gravatar import Gravatar
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
@@ -13,9 +13,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 import os
 
-# '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'1qq
+
+# 8BYkEfBA6O6donzWlSihBXox7C0sKR6b
 app = Flask(__name__)
-print(os.environ.get("FLASK_KEY"))
 app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
 ckeditor = CKEditor(app)
 Bootstrap5(app)
