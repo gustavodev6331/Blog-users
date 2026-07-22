@@ -9,7 +9,6 @@ from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Text, ForeignKey
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
-# Import your forms from the forms.py
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 import os
 
@@ -20,12 +19,11 @@ app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 
-# TODO: Configure Flask-Login
-
+#Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-# CREATE DATABASE
+
 class Base(DeclarativeBase):
     pass
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
@@ -36,7 +34,7 @@ db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
 
-# TODO: Create a User table for all your registered users.
+
 class User(UserMixin, db.Model, Base):
     __tablename__ = "users"
 
@@ -48,7 +46,7 @@ class User(UserMixin, db.Model, Base):
     posts: Mapped[list["BlogPost"]] = relationship(back_populates="author")
     comments: Mapped[list["Comment"]] = relationship(back_populates="comment_author")
 
-# CONFIGURE TABLES
+
 class BlogPost(db.Model, Base):
     __tablename__ = "blog_posts"
 
@@ -90,7 +88,7 @@ def admin_only(f):
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
-# TODO: Use Werkzeug to hash the user's password when creating a new user.
+#Werkzeug to hash the user's password when creating a new user.
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
@@ -123,7 +121,7 @@ def register():
 
 
 
-# TODO: Retrieve a user from the database based on their email. 
+#Retrieve a user from the database based on their email.
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 
@@ -160,7 +158,7 @@ def get_all_posts():
     return render_template("index.html", all_posts=posts, logged_in=current_user.is_authenticated)
 
 
-# TODO: Allow logged-in users to comment on posts
+#Allow logged-in users to comment on posts
 @app.route("/post/<int:post_id>", methods=["GET", "POST"])
 def show_post(post_id):
     form = CommentForm()
@@ -181,7 +179,7 @@ def show_post(post_id):
 
 
 
-# TODO: Use a decorator so only an admin user can create a new post
+#Use a decorator so only an admin user can create a new post
 @app.route("/new-post", methods=["GET", "POST"])
 @admin_only
 def add_new_post():
@@ -201,7 +199,7 @@ def add_new_post():
     return render_template("make-post.html", form=form, logged_in=current_user.is_authenticated)
 
 
-# TODO: Use a decorator so only an admin user can edit a post
+#Use a decorator so only an admin user can edit a post
 @app.route("/edit-post/<int:post_id>", methods=["GET", "POST"])
 @admin_only
 def edit_post(post_id):
@@ -224,7 +222,7 @@ def edit_post(post_id):
     return render_template("make-post.html", form=edit_form, is_edit=True, logged_in=current_user.is_authenticated)
 
 
-# TODO: Use a decorator so only an admin user can delete a post
+#Use a decorator so only an admin user can delete a post
 @app.route("/delete/<int:post_id>")
 @admin_only
 def delete_post(post_id):
