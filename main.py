@@ -59,7 +59,7 @@ class BlogPost(db.Model, Base):
     img_url: Mapped[str] = mapped_column(String(250), nullable=False)
 
     author: Mapped["User"] = relationship(back_populates="posts")
-    comments: Mapped[list["Comment"]] = relationship(back_populates="blogs_comments")
+    comments: Mapped[list["Comment"]] = relationship(back_populates="blogs_comments", cascade="all, delete-orphan")
 
 class Comment(db.Model, Base):
     __tablename__ = "comments"
